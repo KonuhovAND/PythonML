@@ -1,5 +1,3 @@
-from matplotlib.pylab import quantile
-from numpy.ma import mean
 import os
 import matplotlib.pyplot as plt
 import numpy as np
@@ -50,8 +48,6 @@ df.loc[(df['age'] < 0) | (df['age'] > 100), 'age'] = np.nan
 print(f"Количество пропусков в 'age' после очистки и заполнения: {df['age'].isna().sum()}")
 df['age'] = df['age'].fillna(df['age'].median())
 print(f"Медианный возраст: {df['age'].median()}\n")
-
-print(df)
 # =====================================================================
 # ЗАДАЧА 2: Сводные показатели и группировка
 #
@@ -65,6 +61,7 @@ print("--- Задача 2 ---")
 # === ВАШ КОД ЗДЕСЬ ===
 grouped_stats = None
 grouped_stats = df.groupby('selfMade')
+
 print(grouped_stats['age'].agg(['mean','median']) ) 
 print(f"{grouped_stats['finalWorth'].agg(['mean'])}")
 print("\n")
