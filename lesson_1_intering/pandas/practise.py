@@ -38,7 +38,6 @@ print('-' * 30)
 print(data_frame.loc['KZ'])
 print('-' * 30)
 print(data_frame.iloc[1])
-
 print('-' * 30)
 data_frame["nigga_count"] = f"{np.random.randint(-10,10)}"+ data_frame['country']
 
