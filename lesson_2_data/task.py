@@ -4,6 +4,7 @@ from pprint import pprint
 data = pd.read_csv("./data.csv",sep=",")
 df = pd.DataFrame(data)
 
+
 uniq= df.nunique().to_dict()
 pprint(uniq)
 print("*" * 30)
