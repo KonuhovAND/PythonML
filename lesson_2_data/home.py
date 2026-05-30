@@ -48,6 +48,7 @@ df.loc[(df['age'] < 0) | (df['age'] > 100), 'age'] = np.nan
 print(f"Количество пропусков в 'age' после очистки и заполнения: {df['age'].isna().sum()}")
 df['age'] = df['age'].fillna(df['age'].median())
 
+
 print(f"Медианный возраст: {df['age'].median()}\n")
 v1 = np.array([100, 20])   # Вектор вдоль воображаемой плитки
 v2 = np.array([-20, 80])   # Вектор перпендикулярный v1
