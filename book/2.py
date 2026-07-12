@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import OrdinalEncoder,OneHotEncoder,MinMaxScaler
 start = dt.datetime.now()
-
+# asdfasdf
 data = pd.read_csv('D:\\Code\\PythonML\\book\\housing.csv',sep=',')
 
 corr_data = data.corr(numeric_only=True)
