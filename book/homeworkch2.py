@@ -31,7 +31,6 @@ from sklearn.metrics import mean_squared_error
 print("=" * 60)
 print("Загрузка California Housing Dataset...")
 print("=" * 60)
-
 # Пробуем загрузить с sklearn
 try:
     from sklearn.datasets import fetch_california_housing
