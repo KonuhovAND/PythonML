@@ -13,6 +13,3 @@ def load_housing_data():
             housing_tarball.extractall(path="datasets", filter="data")
     return pd.read_csv(Path("datasets/housing/housing.csv"))
 housing_full = load_housing_data()
-
-def asdf():
-    
