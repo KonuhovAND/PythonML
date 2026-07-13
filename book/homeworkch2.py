@@ -319,8 +319,7 @@ params = {
 }
 
 rzscv = RandomizedSearchCV(
-    preprocessing, params, n_iter=10, cv=3, n_jobs=4, 
-    scoring="neg_mean_squared_error"
+    preprocessing, params, n_iter=10, cv=3, n_jobs=4, scoring="neg_mean_squared_error"
 )
 rzscv.fit(X_train, y_train)
 y_pred = rzscv.predict(X_test)
@@ -359,22 +358,58 @@ class StandardScalerClone(BaseEstimator, TransformerMixin):
         # 2. Вычислить mean_ (np.mean по axis=0) и scale_ (np.std по axis=0, ddof=0)
         # 3. Запомнить n_features_in_
         # 4. Если X — DataFrame, сохранить feature_names_in_ (как np.array колонок)
+        if len(X.shape) == 2:
+            self.mean_ = np.mean(X, axis=0)
+            self.scale_ = np.std(X, axis=0, ddof=0)
+            self.n_features_in_ = X.shape[1]
+            if isinstance(X, pd.DataFrame):
+                self.feature_names_in_ = np.array(X.columns)
+        else:
+            raise ValueError(f"X должен быть 2D, получено {len(X.shape)}D")
         return self
 
     def transform(self, X):
         # === ВАШ КОД ЗДЕСЬ ===
         # Проверить, что n_features_in_ совпадает
         # Вернуть (X - mean_) / scale_
-        return X  # заглушка
+        if not hasattr(self, "mean_"):
+            raise RuntimeError("nigga plz run fit() first") 
+        if X.shape[1] != self.n_features_in_:
+            raise ValueError()
+
+        return (X - self.mean_) / self.scale_
 
     def inverse_transform(self, X):
         # === ВАШ КОД ЗДЕСЬ ===
         # Проверить n_features_in_
         # Вернуть X * scale_ + mean_
-        return X  # заглушка
+        if not hasattr(self, "mean_"):
+            raise RuntimeError("nigga plz run fit() first") 
+        if X.shape[1] != self.n_features_in_:
+            raise ValueError()
+
+        return X *self.scale_ + self.mean_
 
     def get_feature_names_out(self, input_features=None):
+        '''
+        - get_feature_names_out(input_features=None):
+      * если input_features передан — проверить длину,
+        проверить совпадение с feature_names_in_ (если есть),
+        вернуть input_features
+      * если input_features=None — вернуть feature_names_in_
+        (если есть) или np.array(["x0", "x1", ...])
+        '''
         # === ВАШ КОД ЗДЕСЬ ===
+
+        if input_features is not None:
+            if hasattr(self,"feature_names_in"):
+                if len(input_features) == len(self.feature_names_in_):
+                    return input_features
+
+        else:
+            if hasattr(self,'feature_names_in_'):
+                return self.feature_names_in_
+
         return np.array(["x0", "x1"])  # заглушка
 
 
