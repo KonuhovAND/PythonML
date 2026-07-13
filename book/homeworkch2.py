@@ -102,7 +102,22 @@ y_train_small = y_train.iloc[:5000]
 # print(f"Лучший RMSE (CV): {best_rmse:.4f}")
 
 print("TODO: Реализовать упражнение 1\n")
+preprocessing = Pipeline([
+    ('scal',StandardScaler(),),
+    ('reg',SVR())
+])
 
+param_grid={'reg__kernel':['rbf','linear'],'reg__C':[0.1,0.5,1.0],'reg__gamma':[.5,1.0,0.01],'reg__epsilon':[0.1,0.2]}
+grid_search = GridSearchCV(preprocessing,param_grid,cv=3,scoring='neg_mean_squared_error',n_jobs=-1)
+
+grid_search.fit(X_train_small,y_train_small)
+print(f"The best params:{grid_search.best_params_}")
+
+best_rmse = np.sqrt(-grid_search.best_score_)
+y_pred= grid_search.predict(X_test)
+rmse_func = root_mean_squared_error(y_pred,y_test)
+print(f"The best rmse {best_rmse }")
+print(f"Model rmse {rmse_func}")
 
 # ============================================================
 # УПРАЖНЕНИЕ 2: GridSearchCV → RandomizedSearchCV
