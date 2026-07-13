@@ -316,7 +316,6 @@ preprocessing = Pipeline(
 params = {
     "poli__degree": [2, 3],  # степень полинома
     "sel__percentile": [30, 50, 70],  # сколько % признаков оставить
-    "model__alpha": [0.1, 0.5, 1.0],  # регуляризация Ridge
 }
 
 rzscv = RandomizedSearchCV(
