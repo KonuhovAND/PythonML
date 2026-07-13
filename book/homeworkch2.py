@@ -109,33 +109,33 @@ y_train_small = y_train.iloc[:5000]
 # print(f"Лучший RMSE (CV): {best_rmse:.4f}")
 
 # print("TODO: Реализовать упражнение 1\n")
-start = dt.datetime.now()
-preprocessing = Pipeline(
-    [
-        (
-            "scal",
-            StandardScaler(),
-        ),
-        ("reg", SVR()),
-    ]
-)
+# start = dt.datetime.now()
+# preprocessing = Pipeline(
+#     [
+#         (
+#             "scal",
+#             StandardScaler(),
+#         ),
+#         ("reg", SVR()),
+#     ]
+# )
 
-param_grid = {
-    "reg__kernel": ["rbf", "linear"],
-    "reg__C": [0.1, 0.5, 1.0],
-    "reg__gamma": [0.5, 1.0, 0.01],
-    "reg__epsilon": [0.1, 0.2],
-}
-grid_search = GridSearchCV(
-    preprocessing, param_grid, cv=3, scoring="neg_mean_squared_error", n_jobs=-1
-)
+# param_grid = {
+#     "reg__kernel": ["rbf", "linear"],
+#     "reg__C": [0.1, 0.5, 1.0],
+#     "reg__gamma": [0.5, 1.0, 0.01],
+#     "reg__epsilon": [0.1, 0.2],
+# }
+# grid_search = GridSearchCV(
+#     preprocessing, param_grid, cv=3, scoring="neg_mean_squared_error", n_jobs=-1
+# )
 
-grid_search.fit(X_train_small, y_train_small)
-print(f"The best params:{grid_search.best_params_}")
+# grid_search.fit(X_train_small, y_train_small)
+# print(f"The best params:{grid_search.best_params_}")
 
-best_rmse = np.sqrt(-grid_search.best_score_)
-print(f"The best rmse {best_rmse}")
-print(dt.datetime.now() - start)
+# best_rmse = np.sqrt(-grid_search.best_score_)
+# print(f"The best rmse {best_rmse}")
+# print(dt.datetime.now() - start)
 # ============================================================
 # УПРАЖНЕНИЕ 2: GridSearchCV → RandomizedSearchCV
 #
@@ -153,18 +153,17 @@ print("-" * 60)
 # 2. RandomizedSearchCV(..., n_iter=15, cv=3, scoring='neg_mean_squared_error', ...)
 # 3. Обучите, выведите лучшие параметры и RMSE
 
-start = dt.datetime.now()
-print("TODO: Реализовать упражнение 2\n")
-RandomizedSearchCV_ = RandomizedSearchCV(
-    preprocessing, param_grid, n_iter=10, scoring="neg_mean_squared_error",
-    cv=3
-)
-RandomizedSearchCV_.fit(X_train_small, y_train_small)
-print(
-    f"The best params: {RandomizedSearchCV_.best_params_}\n\
-    The best rmse: {np.sqrt(-RandomizedSearchCV_.best_score_)}"
-)
-print(dt.datetime.now() - start)
+# start = dt.datetime.now()
+# print("TODO: Реализовать упражнение 2\n")
+# RandomizedSearchCV_ = RandomizedSearchCV(
+#     preprocessing, param_grid, n_iter=10, scoring="neg_mean_squared_error", cv=3
+# )
+# RandomizedSearchCV_.fit(X_train_small, y_train_small)
+# print(
+#     f"The best params: {RandomizedSearchCV_.best_params_}\n\
+#     The best rmse: {np.sqrt(-RandomizedSearchCV_.best_score_)}"
+# )
+# print(dt.datetime.now() - start)
 # ============================================================
 # УПРАЖНЕНИЕ 3: SelectFromModel в пайплайне
 #
@@ -178,6 +177,7 @@ print("-" * 60)
 print("УПРАЖНЕНИЕ 3: SelectFromModel + Pipeline")
 print("-" * 60)
 
+
 # === ВАШ КОД ЗДЕСЬ ===
 # 1. Создайте Pipeline:
 #    StandardScaler → SelectFromModel(RandomForestRegressor(...)) → SVR(kernel="rbf")
@@ -187,7 +187,35 @@ print("-" * 60)
 
 print("TODO: Реализовать упражнение 3\n")
 
+preprocessing_Select_From_Model = Pipeline(
+    [
+        ("scal", StandardScaler()),
+        (
+            "sfm",
+            SelectFromModel(RandomForestRegressor()),
+        ),
+        ("reg", SVR()),
+    ]
+)
+params = {
+    "sfm__estimator__n_jobs": [1],
+    "reg__kernel": ["rbf"],
+    "reg__C": [0.5, 1.0],
+    "reg__gamma": [0.1],
+    "reg__epsilon": [0.1],
+}
 
+grid_search = GridSearchCV(
+    preprocessing_Select_From_Model,
+    params,
+    cv=3,
+    n_jobs=1,
+)
+
+grid_search.fit(X_train, y_train)
+
+print(f"The best params: {grid_search.best_params_}")
+print(f"The best rmse: {grid_search.best_score_}")
 # ============================================================
 # УПРАЖНЕНИЕ 4: Кастомный трансформер — KNN Regressor
 #
