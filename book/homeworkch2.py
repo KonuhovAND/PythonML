@@ -21,13 +21,14 @@ from sklearn.model_selection import (
     RandomizedSearchCV,
 )
 from sklearn.svm import SVR
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, PolynomialFeatures
 from sklearn.pipeline import Pipeline
-from sklearn.feature_selection import SelectFromModel
+from sklearn.feature_selection import SelectFromModel, SelectPercentile
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.metrics import mean_squared_error, root_mean_squared_error
+from sklearn.linear_model import Ridge
 
 # ============================================================
 # ЗАГРУЗКА ДАННЫХ
@@ -304,8 +305,29 @@ print("-" * 60)
 # и ищите лучшие параметры через RandomizedSearchCV
 
 print("TODO: Реализовать упражнение 5\n")
+preprocessing = Pipeline(
+    [
+        ("poli", PolynomialFeatures(degree=2, include_bias=False)),
+        ("sel", SelectPercentile(percentile=50)),
+        ("scl", StandardScaler()),
+        ("model", Ridge(random_state=42)),
+    ]
+)
+params = {
+    "poli__degree": [2, 3],  # степень полинома
+    "sel__percentile": [30, 50, 70],  # сколько % признаков оставить
+    "model__alpha": [0.1, 0.5, 1.0],  # регуляризация Ridge
+}
 
-
+rzscv = RandomizedSearchCV(
+    preprocessing, params, n_iter=10, cv=3, n_jobs=4, 
+    scoring="neg_mean_squared_error"
+)
+rzscv.fit(X_train, y_train)
+y_pred = rzscv.predict(X_test)
+rmse = root_mean_squared_error(y_test, y_pred)
+print(f"The best params:{rzscv.best_params_}")
+print(rmse)
 # ============================================================
 # УПРАЖНЕНИЕ 6: StandardScalerClone своими руками
 #
