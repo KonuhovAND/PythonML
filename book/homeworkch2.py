@@ -8,13 +8,17 @@
 - Не меняйте структуру, только реализуйте логику
 """
 
+import datetime as dt
 import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
 from sklearn.model_selection import (
-    train_test_split, cross_val_score, GridSearchCV, RandomizedSearchCV
+    train_test_split,
+    cross_val_score,
+    GridSearchCV,
+    RandomizedSearchCV,
 )
 from sklearn.svm import SVR
 from sklearn.preprocessing import StandardScaler
@@ -34,25 +38,28 @@ print("=" * 60)
 # Пробуем загрузить с sklearn
 try:
     from sklearn.datasets import fetch_california_housing
+
     housing_data = fetch_california_housing()
     data = pd.DataFrame(housing_data.data, columns=housing_data.feature_names)
-    data['MedHouseVal'] = housing_data.target
+    data["MedHouseVal"] = housing_data.target
     print(f"Загружено: {data.shape[0]} строк, {data.shape[1]} колонок\n")
 except ImportError:
     print("Не удалось загрузить через sklearn. Создаю демо-датасет...\n")
     np.random.seed(42)
     n = 10000
-    data = pd.DataFrame({
-        'MedInc':       np.random.lognormal(mean=np.log(3), sigma=0.5, size=n),
-        'HouseAge':     np.random.randint(1, 52, size=n),
-        'AveRooms':     np.random.lognormal(mean=np.log(5), sigma=0.3, size=n),
-        'AveBedrms':    np.random.lognormal(mean=np.log(1.5), sigma=0.3, size=n),
-        'Population':   np.random.randint(100, 10000, size=n),
-        'AveOccup':     np.random.uniform(0.5, 10, size=n),
-        'Latitude':     np.random.uniform(32.5, 42.0, size=n),
-        'Longitude':    np.random.uniform(-124.5, -114.0, size=n),
-        'MedHouseVal':  np.random.uniform(0.15, 5.0, size=n),
-    })
+    data = pd.DataFrame(
+        {
+            "MedInc": np.random.lognormal(mean=np.log(3), sigma=0.5, size=n),
+            "HouseAge": np.random.randint(1, 52, size=n),
+            "AveRooms": np.random.lognormal(mean=np.log(5), sigma=0.3, size=n),
+            "AveBedrms": np.random.lognormal(mean=np.log(1.5), sigma=0.3, size=n),
+            "Population": np.random.randint(100, 10000, size=n),
+            "AveOccup": np.random.uniform(0.5, 10, size=n),
+            "Latitude": np.random.uniform(32.5, 42.0, size=n),
+            "Longitude": np.random.uniform(-124.5, -114.0, size=n),
+            "MedHouseVal": np.random.uniform(0.15, 5.0, size=n),
+        }
+    )
 
 # Разделяем на фичи и цель
 housing = data.drop("MedHouseVal", axis=1)
@@ -101,24 +108,34 @@ y_train_small = y_train.iloc[:5000]
 # best_rmse = np.sqrt(-grid_search.best_score_)
 # print(f"Лучший RMSE (CV): {best_rmse:.4f}")
 
-print("TODO: Реализовать упражнение 1\n")
-preprocessing = Pipeline([
-    ('scal',StandardScaler(),),
-    ('reg',SVR())
-])
+# print("TODO: Реализовать упражнение 1\n")
+start = dt.datetime.now()
+preprocessing = Pipeline(
+    [
+        (
+            "scal",
+            StandardScaler(),
+        ),
+        ("reg", SVR()),
+    ]
+)
 
-param_grid={'reg__kernel':['rbf','linear'],'reg__C':[0.1,0.5,1.0],'reg__gamma':[.5,1.0,0.01],'reg__epsilon':[0.1,0.2]}
-grid_search = GridSearchCV(preprocessing,param_grid,cv=3,scoring='neg_mean_squared_error',n_jobs=-1)
+param_grid = {
+    "reg__kernel": ["rbf", "linear"],
+    "reg__C": [0.1, 0.5, 1.0],
+    "reg__gamma": [0.5, 1.0, 0.01],
+    "reg__epsilon": [0.1, 0.2],
+}
+grid_search = GridSearchCV(
+    preprocessing, param_grid, cv=3, scoring="neg_mean_squared_error", n_jobs=-1
+)
 
-grid_search.fit(X_train_small,y_train_small)
+grid_search.fit(X_train_small, y_train_small)
 print(f"The best params:{grid_search.best_params_}")
 
 best_rmse = np.sqrt(-grid_search.best_score_)
-y_pred= grid_search.predict(X_test)
-rmse_func = root_mean_squared_error(y_pred,y_test)
-print(f"The best rmse {best_rmse }")
-print(f"Model rmse {rmse_func}")
-
+print(f"The best rmse {best_rmse}")
+print(dt.datetime.now() - start)
 # ============================================================
 # УПРАЖНЕНИЕ 2: GridSearchCV → RandomizedSearchCV
 #
@@ -136,9 +153,18 @@ print("-" * 60)
 # 2. RandomizedSearchCV(..., n_iter=15, cv=3, scoring='neg_mean_squared_error', ...)
 # 3. Обучите, выведите лучшие параметры и RMSE
 
+start = dt.datetime.now()
 print("TODO: Реализовать упражнение 2\n")
-
-
+RandomizedSearchCV_ = RandomizedSearchCV(
+    preprocessing, param_grid, n_iter=10, scoring="neg_mean_squared_error",
+    cv=3
+)
+RandomizedSearchCV_.fit(X_train_small, y_train_small)
+print(
+    f"The best params: {RandomizedSearchCV_.best_params_}\n\
+    The best rmse: {np.sqrt(-RandomizedSearchCV_.best_score_)}"
+)
+print(dt.datetime.now() - start)
 # ============================================================
 # УПРАЖНЕНИЕ 3: SelectFromModel в пайплайне
 #
@@ -177,11 +203,13 @@ print("-" * 60)
 print("УПРАЖНЕНИЕ 4: Кастомный трансформер KNN")
 print("-" * 60)
 
+
 class KNNIncomeTransformer(BaseEstimator, TransformerMixin):
     """
     Обучает KNN на широте/долготе предсказывать медианный доход.
     Добавляет колонку 'knn_income' в X.
     """
+
     def __init__(self, n_neighbors=10):
         self.n_neighbors = n_neighbors
         self.knn = KNeighborsRegressor(n_neighbors=self.n_neighbors)
@@ -260,6 +288,7 @@ print("-" * 60)
 print("УПРАЖНЕНИЕ 6: StandardScalerClone с нуля")
 print("-" * 60)
 
+
 class StandardScalerClone(BaseEstimator, TransformerMixin):
     def __init__(self):
         self.mean_ = None
@@ -295,16 +324,16 @@ class StandardScalerClone(BaseEstimator, TransformerMixin):
 # Тест
 scaler_clone = StandardScalerClone()
 try:
-    X_sample = X_train_small[['MedInc', 'HouseAge']].iloc[:100]
+    X_sample = X_train_small[["MedInc", "HouseAge"]].iloc[:100]
     scaler_clone.fit(X_sample)
     X_scaled = scaler_clone.transform(X_sample)
     X_back = scaler_clone.inverse_transform(X_scaled)
-    
+
     print(f"feature_names_in_: {scaler_clone.feature_names_in_}")
     print(f"mean_: {scaler_clone.mean_}")
     print(f"scale_: {scaler_clone.scale_}")
     print(f"inverse_transform error: {np.abs(X_sample.values - X_back).max():.2e}")
-    
+
     names = scaler_clone.get_feature_names_out()
     print(f"get_feature_names_out(): {names}")
 except Exception as e:
@@ -338,28 +367,28 @@ print("-" * 60)
 
 # === ВАШ КОД ЗДЕСЬ ===
 # Реализуйте полный пайплайн для выбранного датасета
-# 
+#
 # Пример структуры:
 #
 # # 1. Загрузка
 # df = pd.read_csv("bike_sharing.csv")
-# 
+#
 # # 2. Исследование
 # print(df.info())
 # print(df.describe())
-# 
+#
 # # 3. Разделение
 # X = df.drop("cnt", axis=1)
 # y = df["cnt"].copy()
 # X_train, X_test, y_train, y_test = train_test_split(...)
-# 
+#
 # # 4. Пайплайн
 # num_pipeline = Pipeline([...])
 # full_pipeline = ColumnTransformer([...])
-# 
+#
 # # 5. Модель
 # model = RandomForestRegressor(...)
-# 
+#
 # # 6. Оценка
 # predictions = model.predict(X_test)
 # rmse = np.sqrt(mean_squared_error(y_test, predictions))
