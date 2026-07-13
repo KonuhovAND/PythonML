@@ -29,6 +29,7 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.metrics import mean_squared_error, root_mean_squared_error
 from sklearn.linear_model import Ridge
+from sklearn.impute import SimpleImputer
 
 # ============================================================
 # ЗАГРУЗКА ДАННЫХ
@@ -315,17 +316,17 @@ preprocessing = Pipeline(
 )
 params = {
     "poli__degree": [2, 3],  # степень полинома
-    "sel__percentile": [30, 50, 70],  # сколько % признаков оставить
+    "sel__percentile": [30, 50, 70,55,60,90],  # сколько % признаков оставить
 }
 
-rzscv = RandomizedSearchCV(
-    preprocessing, params, n_iter=10, cv=3, n_jobs=4, scoring="neg_mean_squared_error"
-)
-rzscv.fit(X_train, y_train)
-y_pred = rzscv.predict(X_test)
-rmse = root_mean_squared_error(y_test, y_pred)
-print(f"The best params:{rzscv.best_params_}")
-print(rmse)
+# rzscv = RandomizedSearchCV(
+#     preprocessing, params, n_iter=10, cv=3, n_jobs=4, scoring="neg_mean_squared_error"
+# )
+# rzscv.fit(X_train, y_train)
+# y_pred = rzscv.predict(X_test)
+# rmse = root_mean_squared_error(y_test, y_pred)
+# print(f"The best params:{rzscv.best_params_}")
+# print(rmse)
 # ============================================================
 # УПРАЖНЕНИЕ 6: StandardScalerClone своими руками
 #
@@ -414,22 +415,22 @@ class StandardScalerClone(BaseEstimator, TransformerMixin):
 
 
 # Тест
-scaler_clone = StandardScalerClone()
-try:
-    X_sample = X_train_small[["MedInc", "HouseAge"]].iloc[:100]
-    scaler_clone.fit(X_sample)
-    X_scaled = scaler_clone.transform(X_sample)
-    X_back = scaler_clone.inverse_transform(X_scaled)
+# scaler_clone = StandardScalerClone()
+# try:
+#     X_sample = X_train_small[["MedInc", "HouseAge"]].iloc[:100]
+#     scaler_clone.fit(X_sample)
+#     X_scaled = scaler_clone.transform(X_sample)
+#     X_back = scaler_clone.inverse_transform(X_scaled)
 
-    print(f"feature_names_in_: {scaler_clone.feature_names_in_}")
-    print(f"mean_: {scaler_clone.mean_}")
-    print(f"scale_: {scaler_clone.scale_}")
-    print(f"inverse_transform error: {np.abs(X_sample.values - X_back).max():.2e}")
+#     print(f"feature_names_in_: {scaler_clone.feature_names_in_}")
+#     print(f"mean_: {scaler_clone.mean_}")
+#     print(f"scale_: {scaler_clone.scale_}")
+#     print(f"inverse_transform error: {np.abs(X_sample.values - X_back).max():.2e}")
 
-    names = scaler_clone.get_feature_names_out()
-    print(f"get_feature_names_out(): {names}")
-except Exception as e:
-    print(f"Ошибка: {e}")
+#     names = scaler_clone.get_feature_names_out()
+#     print(f"get_feature_names_out(): {names}")
+# except Exception as e:
+#     print(f"Ошибка: {e}")
 
 print("TODO: Реализовать класс полностью\n")
 #3*60 + 44 минуты болы потрачено на 6 заданий
@@ -441,7 +442,7 @@ print("TODO: Реализовать класс полностью\n")
 # A) Vehicle — предсказать цену подержанного авто (age, km, make, model...)
 # B) Bike Sharing — предсказать кол-во арендованных велосипедов (cnt)
 #    по дню недели, времени, погоде
-# C) Любой другой регрессионный датасет
+# C) Любой другой регрессионный датасет(я взял housding)
 #
 # Пройдите все этапы из главы 2:
 # 1. Быстрый взгляд на данные (info, describe, hist)
@@ -463,11 +464,10 @@ print("-" * 60)
 # Пример структуры:
 #
 # # 1. Загрузка
-# df = pd.read_csv("bike_sharing.csv")
-#
+df = pd.read_csv("book/housing.csv")
 # # 2. Исследование
-# print(df.info())
-# print(df.describe())
+print(df.info())
+print(df.describe())
 #
 # # 3. Разделение
 # X = df.drop("cnt", axis=1)
@@ -487,7 +487,15 @@ print("-" * 60)
 # print(f"Test RMSE: {rmse:.4f}")
 
 print("TODO: Реализовать упражнение 7\n")
+df_data = df.drop("median_house_value",axis=1)
+df_target = df['median_house_value'].copy()
 
+
+x_train,x_test,y_train,y_test = train_test_split(df_data,df_target,test_size=.2,random_state=42)
+x_train_small,y_train_small = x_train[:10000], y_train[:10000]
+preprocessing = Pipeline([
+    ('imputer',SimpleImputer(strategy='most_frequent'))
+])
 
 # ============================================================
 print("=" * 60)
