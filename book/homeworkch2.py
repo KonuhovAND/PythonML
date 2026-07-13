@@ -109,33 +109,33 @@ y_train_small = y_train.iloc[:5000]
 # print(f"Лучший RMSE (CV): {best_rmse:.4f}")
 
 # print("TODO: Реализовать упражнение 1\n")
-start = dt.datetime.now()
-preprocessing = Pipeline(
-    [
-        (
-            "scal",
-            StandardScaler(),
-        ),
-        ("reg", SVR(kernel="rbf")),
-    ]
-)
+# start = dt.datetime.now()
+# preprocessing = Pipeline(
+#     [
+#         (
+#             "scal",
+#             StandardScaler(),
+#         ),
+#         ("reg", SVR(kernel="rbf")),
+#     ]
+# )
 
-param_grid = {
-    "reg__C": [0.1, 0.5, 1.0],
-    "reg__gamma": [0.5, 1.0, 0.01],
-    "reg__epsilon": [0.1, 0.2],
-}
-grid_search = GridSearchCV(
-    preprocessing, param_grid, cv=3, scoring="neg_mean_squared_error", n_jobs=-1
-)
+# param_grid = {
+#     "reg__C": [0.1, 0.5, 1.0],
+#     "reg__gamma": [0.5, 1.0, 0.01],
+#     "reg__epsilon": [0.1, 0.2],
+# }
+# grid_search = GridSearchCV(
+#     preprocessing, param_grid, cv=3, scoring="neg_mean_squared_error", n_jobs=-1
+# )
 
-grid_search.fit(X_train_small, y_train_small)
-print(f"The best params:{grid_search.best_params_}")
+# grid_search.fit(X_train_small, y_train_small)
+# print(f"The best params:{grid_search.best_params_}")
 
-best_rmse = np.sqrt(-grid_search.best_score_)
-bp = grid_search.best_params_
-print(f"The best rmse {best_rmse}")
-print(dt.datetime.now() - start)
+# best_rmse = np.sqrt(-grid_search.best_score_)
+# bp = grid_search.best_params_
+# print(f"The best rmse {best_rmse}")
+# print(dt.datetime.now() - start)
 # ============================================================
 # УПРАЖНЕНИЕ 2: GridSearchCV → RandomizedSearchCV
 #
@@ -185,41 +185,41 @@ print("-" * 60)
 # 3. Оцените RMSE на X_test (полные данные, но с тем же пайплайном)
 # 4. Выведите: сколько признаков отобрано, какие именно
 
-print("TODO: Реализовать упражнение 3\n")
+# print("TODO: Реализовать упражнение 3\n")
 
-preprocessing_Select_From_Model = Pipeline(
-    [
-        ("scal", StandardScaler()),
-        (
-            "sfm",
-            SelectFromModel(RandomForestRegressor(n_jobs=2)),
-        ),
-        ("reg", SVR(kernel="rbf")),
-    ]
-)
-params = {
-    "reg__C": [0.5, 1.0],
-    "reg__gamma": [0.1],
-    "reg__epsilon": [0.1, 0.5],
-}
+# preprocessing_Select_From_Model = Pipeline(
+#     [
+#         ("scal", StandardScaler()),
+#         (
+#             "sfm",
+#             SelectFromModel(RandomForestRegressor(n_jobs=2)),
+#         ),
+#         ("reg", SVR(kernel="rbf")),
+#     ]
+# )
+# params = {
+#     "reg__C": [0.5, 1.0],
+#     "reg__gamma": [0.1],
+#     "reg__epsilon": [0.1, 0.5],
+# }
 
-grid_search = GridSearchCV(
-    preprocessing_Select_From_Model,
-    params,
-    cv=3,
-    n_jobs=-1,
-)
+# grid_search = GridSearchCV(
+#     preprocessing_Select_From_Model,
+#     params,
+#     cv=3,
+#     n_jobs=-1,
+# )
 
-grid_search.fit(X_train_small, y_train_small)
+# grid_search.fit(X_train_small, y_train_small)
 
-print(f"The best params: {grid_search.best_params_}")
-print(bp)
-print(f"The best rmse: {np.sqrt(grid_search.best_score_)}")
+# print(f"The best params: {grid_search.best_params_}")
+# print(bp)
+# print(f"The best rmse: {np.sqrt(grid_search.best_score_)}")
 
-y_pred = grid_search.predict(X_test)
+# y_pred = grid_search.predict(X_test)
 
-rmse = root_mean_squared_error(y_test, y_pred)
-print(f"{rmse} - real rmse")
+# rmse = root_mean_squared_error(y_test, y_pred)
+# print(f"{rmse} - real rmse")
 
 # ============================================================
 # УПРАЖНЕНИЕ 4: Кастомный трансформер — KNN Regressor
@@ -252,6 +252,8 @@ class KNNIncomeTransformer(BaseEstimator, TransformerMixin):
         # Используем только Latitude, Longitude как фичи
         # Цель — 'MedInc' (медианный доход)
         # self.knn.fit(...)
+
+        self.knn.fit(X[["Latitude", "Longitude"]], X["MedInc"])
         return self
 
     def transform(self, X):
@@ -260,6 +262,7 @@ class KNNIncomeTransformer(BaseEstimator, TransformerMixin):
         # 2. Вернуть копию X с добавленной колонкой
         X_out = X.copy()
         # X_out["knn_income"] = ...
+        X_out["knn_income"] = self.knn.predict(X_out[["Latitude", "Longitude"]])
         return X_out
 
 
