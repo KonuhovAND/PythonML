@@ -6,7 +6,6 @@ import urllib.request
 import requests as rq
 import csv 
 
-
 def load_housing_data():
     tarball_path = Path("datasets/housing.tgz")
     if not tarball_path.is_file():
