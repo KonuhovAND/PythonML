@@ -1,7 +1,11 @@
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+import os
+from pathlib import Path
+import pandas
 from sklearn.impute import SimpleImputer
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
 
 
 def exercise_1():
@@ -125,6 +129,17 @@ def exercise_3():
     return pred
 
 
+def ls():
+    emails = []
+    for folder in ["easy_ham", "hard_ham", "spam"]:
+        path = Path("/home/andreyk/PythonML/book/chapter_3") / folder
+        for file in path.iterdir():
+            if file.is_file():
+                emails.append((file.read_text(errors="ignore"), folder))
+
+    return emails
+
+
 def exercise_4():
     # a. Download examples of spam and ham from Apache SpamAssassin’s public datasets.
     # b. Unzip the datasets and familiarize yourself with the data format.
@@ -134,8 +149,10 @@ def exercise_4():
     #    Example: ["Hello", "how", "are", "you"] → "Hello you Hello Hello you" → [1, 0, 0, 1] (binary) or [3, 0, 0, 2] (counts).
     #    Add hyperparameters to control: stripping headers, lowercasing, removing punctuation, replacing URLs/numbers, stemming.
     # e. Try out several classifiers and build a great spam classifier with both high recall and high precision.
-    pass
+    emails = ls()
+    print(emails[:10])
+    # x_train, x_test, y_train, y_test = train_test_split(emails)
 
 
 if __name__ == "__main__":
-    exercise_1()
+    exercise_4()
