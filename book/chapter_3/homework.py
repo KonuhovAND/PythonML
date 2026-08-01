@@ -1,8 +1,29 @@
 def exercise_1():
+    from sklearn.model_selection import GridSearchCV, train_test_split
+    from sklearn.neighbors import KNeighborsClassifier
+    from sklearn.metrics import accuracy_score
+    from sklearn.datasets import load_digits
+    from sklearn.preprocessing import StandardScaler
+
     # TODO: Use GridSearchCV to tune n_neighbors and weights
     # TODO: Train best KNN model and evaluate on test set
     # Goal: >97% accuracy
-    pass
+    data = load_digits(as_frame=False)
+    x_data, y_target = data.data, data.target
+    x_train, x_test, y_train, y_test = train_test_split(x_data, y_target, test_size=0.2)
+
+    y_train_even = y_train % 2 == 1
+    y_test_even = y_test % 2 == 1
+    knn = KNeighborsClassifier()
+    param_grid = {
+        "n_neighbors": [1, 3, 5],
+        "weights": ["uniform", "distance"],
+        "n_jobs": [2],
+    }
+    searcher = GridSearchCV(knn, scoring="accuracy", param_grid=param_grid, cv=3)
+    searcher.fit(x_train, y_train)
+    preds = searcher.predict(x_test)
+    print(accuracy_score(y_test, preds))
 
 
 def exercise_2():
@@ -33,4 +54,4 @@ def exercise_4():
 
 
 if __name__ == "__main__":
-    pass
+    exercise_1()
