@@ -1,8 +1,9 @@
 def exercise_1():
+    from sklearn.datasets import load_digits
+    from sklearn.metrics import accuracy_score
     from sklearn.model_selection import GridSearchCV, train_test_split
     from sklearn.neighbors import KNeighborsClassifier
-    from sklearn.metrics import accuracy_score
-    from sklearn.datasets import load_digits
+    from sklearn.pipeline import Pipeline
     from sklearn.preprocessing import StandardScaler
 
     # TODO: Use GridSearchCV to tune n_neighbors and weights
@@ -11,26 +12,60 @@ def exercise_1():
     data = load_digits(as_frame=False)
     x_data, y_target = data.data, data.target
     x_train, x_test, y_train, y_test = train_test_split(x_data, y_target, test_size=0.2)
-
-    y_train_even = y_train % 2 == 1
-    y_test_even = y_test % 2 == 1
-    knn = KNeighborsClassifier()
+    pipline = Pipeline(
+        [
+            ("s", StandardScaler()),
+            ("k", KNeighborsClassifier()),
+        ]
+    )
     param_grid = {
-        "n_neighbors": [1, 3, 5],
-        "weights": ["uniform", "distance"],
-        "n_jobs": [2],
+        "k__n_neighbors": [1, 3, 5, 7, 9, 11],
+        "k__weights": ["uniform", "distance"],
+        "k__n_jobs": [2, 4, 6],
     }
-    searcher = GridSearchCV(knn, scoring="accuracy", param_grid=param_grid, cv=3)
+    searcher = GridSearchCV(pipline, scoring="accuracy", param_grid=param_grid, cv=3)
     searcher.fit(x_train, y_train)
     preds = searcher.predict(x_test)
     print(accuracy_score(y_test, preds))
+    print(searcher.best_params_, searcher.best_score_)
+    print("=" * 30)
+    print("task 2")
+
+    x_train_huge, x_test_huge, y_train_huge, y_test_huge = exercise_2()
+    searcher.fit(x_train_huge, y_train_huge)
+    preds = searcher.predict(x_test_huge)
+    print(accuracy_score(y_test_huge, preds))
 
 
 def exercise_2():
     # TODO: Write a function that can shift an MNIST image in any direction (left, right, up, or down) by one pixel.
     # TODO: For each image in the training set, create four shifted copies (one per direction) and add them to the training set.
     # TODO: Train your best model on this expanded training set and measure its accuracy on the test set.
-    pass
+    from sklearn.datasets import load_digits
+    from scipy.ndimage import shift
+    from sklearn.model_selection import train_test_split
+    import numpy as np
+
+    Data = load_digits(as_frame=False)
+    x, y = Data.images, Data.target
+    data_north = shift(x, (0, 1, 0), cval=0)
+    data_south = shift(x, (0, -1, 0), cval=0)
+    data_east = shift(x, (0, 0, 1), cval=0)
+    data_west = shift(x, (0, 0, -1), cval=0)
+
+    x_huge = np.vstack(
+        [
+            x.reshape(-1, 64),
+            data_north.reshape(-1, 64),
+            data_south.reshape(-1, 64),
+            data_east.reshape(-1, 64),
+            data_west.reshape(-1, 64),
+        ]
+    )
+    y_huge = np.hstack([y, y, y, y, y])
+    x_data, y_target = x_huge, y_huge
+    x_train, x_test, y_train, y_test = train_test_split(x_data, y_target, test_size=0.2)
+    return x_train, x_test, y_train, y_test
 
 
 def exercise_3():
