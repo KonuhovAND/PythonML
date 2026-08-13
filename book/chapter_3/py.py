@@ -1,20 +1,18 @@
-from sklearn.metrics import roc_curve
-from sklearn.model_selection import cross_val_predict
-from sklearn.metrics import confusion_matrix
-from sklearn.model_selection import StratifiedKFold
-from sklearn.base import clone
-from sklearn.dummy import DummyClassifier
-from sklearn.model_selection import cross_val_score
 import matplotlib.pyplot as plt
 import sklearn.model_selection
+from sklearn.base import clone
 from sklearn.datasets import load_digits
+from sklearn.dummy import DummyClassifier
 from sklearn.linear_model import SGDClassifier
 from sklearn.metrics import (
     accuracy_score,
+    confusion_matrix,
     precision_score,
     recall_score,
+    roc_curve,
     root_mean_squared_error,
 )
+from sklearn.model_selection import StratifiedKFold, cross_val_predict, cross_val_score
 
 mnist = load_digits(as_frame=False)
 X_data, y_target = mnist.data, mnist.target
