@@ -1,9 +1,13 @@
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import StackingClassifier
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.metrics import root_mean_squared_error, accuracy_score
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.datasets import load_iris
 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 from sklearn.ensemble import BaggingClassifier
 from sklearn.calibration import CalibratedClassifierCV
 import numpy as np
@@ -108,4 +112,74 @@ for score, name in zip(rnc_clf.feature_importances_, iris.data.columns):
     print(round(score, 2), name)
 
 
-ada_clf = AdaBoostClassifier(random_state=42)
+ada_clf = AdaBoostClassifier(
+    DecisionTreeClassifier(max_depth=1),
+    n_estimators=30,
+    learning_rate=0.5,
+    random_state=42,
+)
+
+x, y = iris.data, iris.target
+x_train, x_test, y_train, y_test = train_test_split(
+    x, y, test_size=0.4, random_state=42
+)
+
+ada_clf.fit(x_train, y_train)
+ada_clf_pred = ada_clf.predict(x_test)
+print(root_mean_squared_error(y_test, ada_clf_pred))
+print(accuracy_score(y_test, ada_clf_pred))
+
+
+m = 100
+rng = np.random.default_rng(seed=42)
+X = rng.random((m, 1)) - 0.5
+noise = 0.05 * rng.standard_normal(m)
+y = 3 * X[:, 0] ** 2 + noise
+
+
+tree_reg1 = DecisionTreeRegressor(max_depth=2, random_state=42)
+tree_reg1.fit(X, y)
+
+y2 = y - tree_reg1.predict(X)
+tree_reg2 = DecisionTreeRegressor(max_depth=2, random_state=43)
+tree_reg2.fit(X, y2)
+
+y3 = y2 - tree_reg2.predict(X)
+tree_reg3 = DecisionTreeRegressor(max_depth=2, random_state=44)
+tree_reg3.fit(X, y3)
+
+X_new = np.array(
+    [
+        [-0.4],
+        [0.0],
+        [0.5],
+    ]
+)
+
+print(sum(tree.predict(X_new) for tree in [tree_reg1, tree_reg2, tree_reg3]))
+
+
+gbr = GradientBoostingRegressor(
+    max_depth=2, n_estimators=3, learning_rate=1, random_state=42
+)
+gbr.fit(X, y)
+print(gbr.predict(X_new).sum())
+print(gbr.score(X, y))
+plt.scatter(X, y, color="blue", label="No Label")
+plt.savefig("./fig.jpg")
+
+
+stc_clf = StackingClassifier(
+    estimators=[
+        ("lr", LogisticRegression(random_state=42)),
+        ("rf", RandomForestClassifier(random_state=42)),
+        ("svc", CalibratedClassifierCV(SVC(random_state=42), ensemble=False)),
+    ],
+    final_estimator=RandomForestClassifier(random_state=43),
+    cv=5,
+)
+scl = StandardScaler()
+x_train = scl.fit_transform(x_train)
+x_test = scl.transform(x_test)
+stc_clf.fit(x_train, y_train)
+print(stc_clf.score(x_test, y_test))
