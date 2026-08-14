@@ -1,3 +1,4 @@
+from sklearn.ensemble import AdaBoostClassifier
 from sklearn.datasets import load_iris
 
 from sklearn.ensemble import RandomForestClassifier
@@ -105,3 +106,6 @@ rnc_clf = RandomForestClassifier(random_state=42, n_estimators=500)
 rnc_clf.fit(iris.data, iris.target)
 for score, name in zip(rnc_clf.feature_importances_, iris.data.columns):
     print(round(score, 2), name)
+
+
+ada_clf = AdaBoostClassifier(random_state=42)
