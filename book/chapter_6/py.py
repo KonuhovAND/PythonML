@@ -1,3 +1,4 @@
+from sklearn.datasets import load_iris
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.tree import DecisionTreeClassifier
@@ -96,3 +97,10 @@ rnd_clf = RandomForestClassifier(
 )
 
 rnd_clf.fit(x_train, y_train)
+
+
+iris = load_iris(as_frame=True)
+rnc_clf = RandomForestClassifier(random_state=42, n_estimators=500)
+rnc_clf.fit(iris.data, iris.target)
+for score, name in zip(rnc_clf.feature_importances_, iris.data.columns):
+    print(round(score, 2), name)
