@@ -1,25 +1,21 @@
-from sklearn.preprocessing import StandardScaler
-from sklearn.ensemble import StackingClassifier
-from sklearn.ensemble import GradientBoostingRegressor
-from sklearn.metrics import root_mean_squared_error, accuracy_score
-from sklearn.ensemble import AdaBoostClassifier
-from sklearn.datasets import load_iris
-
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score
-from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
-from sklearn.ensemble import BaggingClassifier
-from sklearn.calibration import CalibratedClassifierCV
-import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
-
-
-from sklearn.datasets import make_moons
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import VotingClassifier, RandomForestClassifier
+import numpy as np
+from sklearn.calibration import CalibratedClassifierCV
+from sklearn.datasets import load_iris, make_moons
+from sklearn.ensemble import (
+    AdaBoostClassifier,
+    BaggingClassifier,
+    GradientBoostingRegressor,
+    RandomForestClassifier,
+    StackingClassifier,
+    VotingClassifier,
+)
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, root_mean_squared_error
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 
 x, y = make_moons(n_samples=500, noise=0.3, random_state=42)
 x_train, x_test, y_train, y_test = train_test_split(x, y, random_state=42)
