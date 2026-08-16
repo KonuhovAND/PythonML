@@ -1,13 +1,12 @@
-from graphviz import Source
 from sklearn.datasets import load_iris
-from sklearn.tree import DecisionTreeClassifier, export_graphviz
+from sklearn.tree import DecisionTreeClassifier
 
 iris = load_iris(as_frame=True)
-x, y= iris.data[['petal length (cm)', 'petal width (cm)']].values,iris.target
+x, y = iris.data[["petal length (cm)", "petal width (cm)"]].values, iris.target
 
 
-dtr_clf = DecisionTreeClassifier(random_state=42,max_depth=2)
-dtr_clf.fit(x,y)
+dtr_clf = DecisionTreeClassifier(random_state=42, max_depth=2)
+dtr_clf.fit(x, y)
 
 # export_graphviz(
 #     dtr_clf,
