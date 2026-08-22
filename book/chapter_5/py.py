@@ -1,22 +1,11 @@
+from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier
 from sklearn.datasets import load_iris
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline, make_pipeline
 
-iris = load_iris(as_frame=True)
-x, y = iris.data[["petal length (cm)", "petal width (cm)"]].values, iris.target
-
-
-dtr_clf = DecisionTreeClassifier(random_state=42, max_depth=2)
-dtr_clf.fit(x, y)
-
-# export_graphviz(
-#     dtr_clf,
-#     out_file='my.dot',
-#     feature_names=['petal length (cm)','petal width (cm)'],
-#     class_names = iris.target_names,
-#     rounded=True,
-#     filled=True
-# )
-
-# Source.from_file('my.dot').render('my.dot', view=True)
-
-print(dtr_clf.predict_proba([[5, 1.5]]).round(3))
+x_iris, y_iris = load_iris(as_frame=True).data, load_iris(as_frame=True).target
+pca_pipline = make_pipeline(StandardScaler(), PCA())
+x_iris_rotated = pca_pipline.fit_transform(x_iris)
+tree_clf_pca = DecisionTreeClassifier(max_depth=2, random_state=42)
+tree_clf_pca.fit(x_iris_rotated, y_iris)
