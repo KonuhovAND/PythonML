@@ -65,6 +65,7 @@ for train_id, (X_subset, y_subset) in enumerate(subsets):
     dtc.fit(X_subset, y_subset)
     results.append(dtc.score(X_test, y_test))
     predictions[train_id] = dtc.predict(X_test)
+
 final_pred = mode(predictions, axis=0, keepdims=False).mode
 forest_acuracy = np.mean(final_pred == y_test)
 
