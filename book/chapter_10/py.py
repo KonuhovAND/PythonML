@@ -22,4 +22,18 @@ y_test = torch.FloatTensor(y_test).reshape(-1, 1)
 torch.manual_seed(42)
 n_features = X_train.shape[1]
 w = torch.randn((n_features, 1), requires_grad=True)
-b = torch.tensor(0, requires_grad=True)
+b = torch.tensor(0.0, requires_grad=True)
+
+
+learning_rate = 0.4
+for index in range(20):
+    y_pred = X_train @ w + b
+    loss = ((y_pred - y_train) ** 2).mean()
+    loss.backward()
+    with torch.no_grad():
+        assert w.grad is not None and b.grad is not None
+        b -= learning_rate * b.grad
+        w -= learning_rate * w.grad
+        b.grad.zero_()
+        w.grad.zero_()
+    print(f"Number is {index} Loss:{loss.item()}")
